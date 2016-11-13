@@ -1,0 +1,343 @@
+<!-- References:
+      http://bl.ocks.org/cmdoptesc/fc0e318ce7992bed7ca8
+      https://vida.io/gists/vh63p7sCnXuSctA7Y
+      http://bl.ocks.org/mbostock/4699541
+-->
+
+<!--  high: min - 64.3; max - 91.8
+      bs: min - 12.3; max - 48.5
+      advanced:  min - 4.5; max - 28
+-->
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="d3.slider.css" />
+<style>
+
+
+/*----------------------------- map and color ---------------------*/
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 1060px;
+  height: 500px;
+  position: relative;
+}
+/* stylesheet for your custom graph */
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+.states-choropleth {
+  fill: #ccc;
+}
+#tooltip-container {
+  position: absolute;
+  background-color: #fff;
+  color: #000;
+  padding: 10px;
+  border: 1px solid;
+  display: none;
+}
+.tooltip_key {
+  font-weight: bold;
+}
+.tooltip_value {
+  margin-left: 20px;
+  float: right;
+}
+#metric{
+  margin-left: 100px;
+  margin-bottom: -10px;
+}
+h1{
+  margin-left: 50px;
+  margin-top: 30px;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
+  font-size: 32px;
+}
+
+/*----------------------------- map and color   end ---------------------*/
+</style>
+<h1 style="font-size:25pt" >Educational Attainment data from 2000 to 2009 </h1>
+<div id="tooltip-container" ></div>
+<div id="canvas-svg" ></div>
+<div id="slider3"></div>
+  <select onchange="load()" id="metric">
+    <option >High school graduate or more</option>
+    <option >Bachelor's degree or more</option>
+    <option >Advanced degree or more</option>
+  </select>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.1.0/topojson.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="d3.slider.js"></script>
+<script>
+
+// ----------- plot  -------------
+
+   // --- load is used to load data according to different categories
+  var degreedata = 'high.csv';
+  var year = 2000;
+  var setdata;
+
+  var load = function() {
+      var metric = document.getElementById('metric').selectedOptions[0].text;
+      if(metric == "Bachelor's degree or more"){
+        degreedata ='bachelor.csv';
+      }else if( metric == "Advanced degree or more"){
+        degreedata ='advance.csv';
+      // }else if(metric=="High school graduate or more"){
+      }else{
+        degreedata ='high.csv';
+      }
+        degreecolor(degreedata);
+  }
+
+  // --- Interpolate is used to divide the color
+  function Interpolate(start, end, steps, count) {
+      var s = start,
+          e = end,
+          final = s + (((e - s) / steps) * count);
+      return Math.floor(final);
+  }
+
+  // --- Convert hex to rgb
+  function Color(_r, _g, _b) {
+      var r, g, b;
+      var setColors = function(_r, _g, _b) {
+          r = _r;
+          g = _g;
+          b = _b;
+      };
+      setColors(_r, _g, _b);
+      this.getColors = function() {
+          var colors = {
+              r: r,
+              g: g,
+              b: b
+          };
+          return colors;
+      };
+   }
+
+  function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+      } : null;
+  }
+
+  var WIDTH = 1000, HEIGHT = 500;
+  var COLOR_COUNTS = 6;
+  var width = WIDTH,
+      height = HEIGHT;
+  var valueById = d3.map();
+  var colors = [];
+  var color1 = "#e5f5e0";
+  var color2 = "#31a354";
+  valuetocolors(colors,color1,color2);
+
+  function degreecolor(degreedata) {
+    if(degreedata =='advance.csv') {
+      color1 = "#fee0d2";
+      color2 = "#cb181d";
+      colors=[];
+      valuetocolors(colors,color1,color2);
+    } else if (degreedata =='bachelor.csv') {
+      color1 = "#f2f0f7";
+      color2 = "#4B0082";
+      colors=[];
+      valuetocolors(colors,color1,color2);
+    } else {
+      color1 = "#e5f5e0";
+      color2 = "#31a354";
+      colors=[];
+      valuetocolors(colors,color1,color2);
+    }
+  }
+
+  function valuetocolors(colors, color1, color2) {
+      var COLOR_FIRST = color1, COLOR_LAST = color2;
+      var rgb = hexToRgb(COLOR_FIRST);
+      var COLOR_START = new Color(rgb.r, rgb.g, rgb.b);
+      rgb = hexToRgb(COLOR_LAST);
+      var COLOR_END = new Color(rgb.r, rgb.g, rgb.b);
+
+      // --- set color
+      var startColors = COLOR_START.getColors(),
+          endColors = COLOR_END.getColors();
+
+      for (var i = 0; i < COLOR_COUNTS; i++) {
+        var r = Interpolate(startColors.r, endColors.r, COLOR_COUNTS, i);
+        var g = Interpolate(startColors.g, endColors.g, COLOR_COUNTS, i);
+        var b = Interpolate(startColors.b, endColors.b, COLOR_COUNTS, i);
+        colors.push(new Color(r, g, b));
+      }
+  }
+
+  // --- map state name to id
+  name_id_map = {};
+  id_name_map = {};
+  d3.tsv("https://s3-us-west-2.amazonaws.com/vida-public/geo/us-state-names.tsv", function(error, names) {
+  for (var i = 0; i < names.length; i++) {
+    name_id_map[names[i].name] = names[i].id;
+    id_name_map[names[i].id] = names[i].name;
+  }
+  });
+
+  var path = d3.geo.path();
+  var svg;
+  var svg = d3.select("#canvas-svg").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+
+  id = [];
+  d3.json("https://s3-us-west-2.amazonaws.com/vida-public/geo/us.json", function(error, us) {
+
+  var value;
+  var state;
+  var quantize;
+  var domain_min;
+  var domain_max;
+
+  setdata = function(degreedata,year) {
+    var MAP_STATE = null;
+    var MAP_VALUE = null;
+    d3.csv(degreedata, function(err, data) {
+      var config = {"stateDataColumn":"state","valueDataColumn":year};
+      // --- MAP_STATE: the name of state
+      // --- MAP_VALUE: the value of each state
+      MAP_STATE = config.stateDataColumn;
+      MAP_VALUE = config.valueDataColumn;
+      data.forEach(function(d) {
+      var id = name_id_map[d[MAP_STATE]];
+      valueById.set(id, +d[MAP_VALUE]);
+      });
+    });
+
+// --- set domain for quantize
+    if(degreedata =='high.csv') {
+      domain_max=95;
+      domain_min=70;
+    } else if(degreedata =='bachelor.csv') {
+      domain_max=50;
+      domain_min=14;
+    } else {
+      domain_max=25;
+      domain_min=5;
+    }
+
+    quantize = d3.scale.quantize().domain([domain_min,domain_max])
+                        .range(d3.range(COLOR_COUNTS).map(function(i) { return i }));
+
+  }
+
+    setdata(degreedata,year);
+
+    svg.append("g")
+             .attr("class", "states-choropleth")
+             .selectAll("path")
+             .data(topojson.feature(us, us.objects.states).features)
+             .enter().append("path")
+             .attr("d", path)
+             .style("fill", function(d)
+             {
+               if (valueById.get(d.id)) {
+                   var i = quantize(valueById.get(d.id));
+                   var color = colors[i].getColors();
+                   return "rgb(" + color.r + "," + color.g +
+                           "," + color.b + ")";
+               } else {
+                   return "#BBB";
+               }
+             })
+             .on("mousemove",yearChange)
+             .on("mouseover", function(d) {
+                 var html = "";
+                 html += "<div class=\"tooltip_kv\">";
+                 html += "<span class=\"tooltip_key\">";
+                 html += id_name_map[d.id];
+                 html += "</span>";
+                 html += "<span class=\"tooltip_value\">";
+                 html += (valueById.get(d.id) ? valueById.get(d.id) : "");
+                 html += "%";
+                 html += "</span>";
+                 html += "</div>";
+
+                 $("#tooltip-container").html(html);
+                 $(this).attr("fill-opacity", "0.8");
+                 $("#tooltip-container").show();
+
+                 var coordinates = d3.mouse(this);
+
+                 var map_width = $('.states-choropleth')[0].getBoundingClientRect().width;
+
+                 if (d3.event.layerX < map_width / 2) {
+                   d3.select("#tooltip-container")
+                     .style("top", (d3.event.layerY + 15) + "px")
+                     .style("left", (d3.event.layerX + 15) + "px");
+                 } else {
+                   var tooltip_width = $("#tooltip-container").width();
+                   d3.select("#tooltip-container")
+                     .style("top", (d3.event.layerY + 15) + "px")
+                     .style("left", (d3.event.layerX - tooltip_width - 30) + "px");
+                 }
+             })
+             .on("mouseout", function() {
+                     $(this).attr("fill-opacity", "1.0");
+                     $("#tooltip-container").hide();
+                 });
+
+      svg.append("path")
+         .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+         .attr("class", "states")
+         .attr("d", path);
+
+  function yearChange(){
+      setdata("high.csv",year);
+      var map = d3.select("g").transition();
+      map.selectAll("path")
+         .duration(500)
+         .style("fill", function(d){
+                if (valueById.get(d.id)) {
+                    var i = quantize(valueById.get(d.id));
+                    var color = colors[i].getColors();
+                    return "rgb(" + color.r + "," + color.g +
+                            "," + color.b + ")";
+                } else {
+                    return "blue";
+                }
+              })
+         }
+
+
+  function testslider() {
+    var map = d3.select("g");
+    map.selectAll("path")
+       .on("mousemove",yearChange);
+  }
+
+
+  d3.select('#slider3')
+     .call( d3.slider().scale(d3.scale.ordinal()
+                       .domain([2000, 2006, 2007, 2008, 2009])
+                       .rangePoints([0, 1], 0.5)).axis(d3.svg.axis())
+                       .snap(true).value(2000)
+                       .on("slide", function(evt,value) {
+                         if(value != 0){
+                           year = value;
+                           setdata(degreedata,value);
+                           testslider();
+                          } else {
+                           setdata(degreedata,1990);
+                           testmapcolor();
+                          }
+                       })
+             );
+ });
+
+</script>
