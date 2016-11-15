@@ -1,0 +1,64 @@
+h1
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+  font-size: 32px;
+}
+h2
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+  font-size: 14px;
+}
+
+div
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+  font-size: 15px;
+}
+  .bar {
+  fill: #31a354;
+  }
+
+  .bar1 {
+  fill: #756bb1;
+  }
+
+  .bar2 {
+  fill: #de2d26;
+  }
+
+
+  .bar:hover {
+  fill: grey;
+  }
+
+  .bar1:hover {
+  fill: grey;
+  }
+
+  .bar2:hover {
+  fill: grey;
+  }
+
+
+  .axis {
+  font: 10px sans-serif;
+  }
+
+
+  .axis path,.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+  }
+
+  .x.axis path {
+  display: none;
+  }
+
+  .legend {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 60%;
+}

@@ -1,20 +1,20 @@
-d3.csv("nodes.csv",function(error,nodes){
-    d3.csv("edges.csv",function(error,edges){
+d3.csv("dataset/nodes.csv",function(error,nodes){
+    d3.csv("dataset/edges.csv",function(error,edges){
 
         function tick() {
             edge.attr("d", function(d) {
                 var dx = d.target.x - d.source.x,
                     dy = d.target.y - d.source.y,
                     dr = Math.sqrt(dx * dx + dy * dy);
-                return "M" + 
-                    d.source.x + "," + 
-                    d.source.y + "A" + 
-                    dr + "," + dr + " 0 0,1 " + 
-                    d.target.x + "," + 
+                return "M" +
+                    d.source.x + "," +
+                    d.source.y + "A" +
+                    dr + "," + dr + " 0 0,1 " +
+                    d.target.x + "," +
                     d.target.y;
             });
             node
-                .attr("transform", function(d) { 
+                .attr("transform", function(d) {
                     return "translate(" + d.x + "," + d.y + ")"; });
         }
 

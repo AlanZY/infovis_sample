@@ -1,6 +1,6 @@
 queue()
-    .defer(d3.csv, "nodes.csv")
-    .defer(d3.csv, "edges.csv")
+    .defer(d3.csv, "dataset/nodes.csv")
+    .defer(d3.csv, "dataset/edges.csv")
     .await(function(error, file1, file2) { create(file1, file2); });
 
 function create(nodes,edges){
@@ -12,7 +12,7 @@ function create(nodes,edges){
     var edgesHash = [];
     for(x in edges){
         var id = edges[x].Source + '-' + edges[x].Target;
-        edgesHash[id] = 1;  
+        edgesHash[id] = 1;
     }
 
     for(a in nodes){
@@ -21,7 +21,7 @@ function create(nodes,edges){
             if(edgesHash[grid.id] || edgesHash[grid.revid]){
                 grid.weight = 1;
             }
-            matrix.push(grid);   
+            matrix.push(grid);
         }
     }
 
@@ -46,13 +46,13 @@ function create(nodes,edges){
         .style("fill", "red")
         .style("fill-opacity", function (d) {return d.weight});
 
-    
+
     var scaleSize = nodes.length * 10;
     var nameScale = d3.scale.ordinal().domain(nodes.map(function (el) {return el.Label})).rangePoints([0,scaleSize],1);
-      
-    xAxis = d3.svg.axis().scale(nameScale).orient("top").tickSize(4);    
-    yAxis = d3.svg.axis().scale(nameScale).orient("left").tickSize(4);    
-    
+
+    xAxis = d3.svg.axis().scale(nameScale).orient("top").tickSize(4);
+    yAxis = d3.svg.axis().scale(nameScale).orient("left").tickSize(4);
+
     d3.select("#adjacencyG").append("g").call(xAxis)
     .selectAll("text")
     .style("text-anchor", "end")
@@ -64,5 +64,5 @@ function create(nodes,edges){
     d3.select("#adjacencyG").append("g").call(yAxis)
     .selectAll("text")
     .style("font-size",".6em");
-      
+
 }

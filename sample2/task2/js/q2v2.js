@@ -1,7 +1,7 @@
 
 queue()
-    .defer(d3.csv, "nodes.csv")
-    .defer(d3.csv, "edges.csv")
+    .defer(d3.csv, "dataset/nodes.csv")
+    .defer(d3.csv, "dataset/edges.csv")
     .await(function(error, file1, file2) { create(file1, file2); });
 
 function create(nodes,edges){
@@ -38,14 +38,14 @@ function create(nodes,edges){
 
     var matrix = [],
     n = nodes.length;
-    
+
     nodes.forEach(function(node, i) {
         matrix[i] = d3.range(n).map(function(j) { return {x: j, y: i, z: 0}; });
         node.group = node.Class.charCodeAt(0);
     });
 
     console.log(nodes);
-    
+
     edges.forEach(function(edge) {
         matrix[parseInt(edge.Source)][parseInt(edge.Target)].z =1;
         matrix[parseInt(edge.Target)][parseInt(edge.Source)].z =1;
@@ -137,8 +137,8 @@ function create(nodes,edges){
         .attr("width", x.rangeBand())
         .attr("height", x.rangeBand())
         .style("fill-opacity", function(d) { return d.z; })
-        .style("fill", function(d) { 
-            return (nodes[d.x].group === nodes[d.y].group) ? c(nodes[d.x].group) : "gray"; 
+        .style("fill", function(d) {
+            return (nodes[d.x].group === nodes[d.y].group) ? c(nodes[d.x].group) : "gray";
         })
         .on("mouseover", mouseover)
         .on("mouseout", mouseout);
@@ -169,5 +169,5 @@ function create(nodes,edges){
   function mouseout() {
     d3.selectAll("text").classed("active", false);
   }
-      
+
 }

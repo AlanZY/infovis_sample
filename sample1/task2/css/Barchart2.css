@@ -1,0 +1,36 @@
+body {
+  font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+h1
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
+  font-size: 32px;
+}
+h2
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
+  font-size: 14px;
+}
+
+svg
+{
+  text-align: center;
+}

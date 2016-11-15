@@ -1,0 +1,51 @@
+h1
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+  font-size: 32px;
+}
+
+h2
+{
+  text-align: center;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+  font-size: 14px;
+}
+
+div
+{
+  text-align: center;
+
+}
+body {
+  font: 9px Inconsolata, Monaco, Consolas, 'Courier New', Courier;;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/*
+.x.axis path {
+  display: none;
+}
+ */
+
+.line {
+  fill: none;
+  stroke: #31a354;
+  stroke-width: 1.5px;
+}
+.line2 {
+  fill: none;
+  stroke: #756bb1;
+  stroke-width: 1.5px;
+}
+.line3 {
+  fill: none;
+  stroke: #de2d26;
+  stroke-width: 1.5px;
+}

@@ -1,0 +1,42 @@
+
+/*----------------------------- map and color ---------------------*/
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 1060px;
+  height: 500px;
+  position: relative;
+}
+/* stylesheet for your custom graph */
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+.states-choropleth {
+  fill: #ccc;
+}
+#tooltip-container {
+  position: absolute;
+  background-color: #fff;
+  color: #000;
+  padding: 10px;
+  border: 1px solid;
+  display: none;
+}
+.tooltip_key {
+  font-weight: bold;
+}
+.tooltip_value {
+  margin-left: 20px;
+  float: right;
+}
+#metric{
+  margin-left: 100px;
+  margin-bottom: -10px;
+}
+h1{
+  margin-left: 50px;
+  margin-top: 30px;
+  font-family: Inconsolata, Monaco, Consolas, 'Courier New', Courier;
+  font-size: 32px;
+}
